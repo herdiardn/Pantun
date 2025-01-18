@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Login Admin</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-image: url("images/loginAdminn.png");
+        background-size: 80%;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+
+      .container {
+        background-color: white;
+        backdrop-filter: blur(5px);
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 300px;
+        z-index: 1;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      button {
+        width: 30%;
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #555;
+      }
+
+      #error-message {
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: red;
+        font-weight: bold;
+      }
+
+      @media screen and (max-width: 480px) {
+        body {
+          background-size: 120%;
+        }
+        .container {
+          padding: 20px;
+          width: 250px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Login Guru</h1>
+      <input type="password" id="password" placeholder="Masukkan password" />
+      <button onclick="login()">Masuk</button>
+      <p id="error-message"></p>
+    </div>
+  </body>
+  <script>
+    function login() {
+      const password = document.getElementById("password").value;
+      const errorMessage = document.getElementById("error-message");
+
+      if (password === "admin123") {
+        window.location.href = "admin.html";
+      } else {
+        errorMessage.textContent = "Password salah. Silakan coba lagi.";
+      }
+    }
+  </script>
+</html>

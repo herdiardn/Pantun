@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pilih Peran</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        background-image: url("images/bg.png"); /* Menggunakan gambar sebagai background */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        overflow: hidden; /* Menjaga elemen tetap di dalam viewport */
+        position: relative; /* Untuk batasan elemen bergerak */
+        margin: 0;
+      }
+
+      .container {
+        z-index: 10;
+      }
+
+      .container .role {
+        margin-top: 100px;
+        text-align: center;
+        background-color: rgba(38, 38, 38, 0.3); /* Transparan 30% */
+        padding: 5px 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        z-index: 10; /* Membuat container berada di atas elemen PNG */
+        backdrop-filter: blur(2px);
+      }
+
+      h2 {
+        margin-bottom: 20px;
+        color: white;
+      }
+
+      .role-button {
+        padding: 10px 40px;
+        margin: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #000000;
+        color: white;
+      }
+
+      .role-button:hover {
+        background-color: #0056b3;
+      }
+
+      /* Elemen PNG yang bergerak */
+      .moving-element1 {
+        position: absolute;
+        width: 100px;
+        animation: float 4s ease-in-out infinite; /* Animasi naik-turun */
+      }
+
+      .moving-element2 {
+        position: absolute;
+        width: 250px;
+        animation: float 4s ease-in-out infinite; /* Animasi naik-turun */
+      }
+
+      .moving-element3 {
+        position: absolute;
+        width: 80px;
+        animation: float 4s ease-in-out infinite; /* Animasi naik-turun */
+      }
+
+      .moving-element4 {
+        position: absolute;
+        width: 350px;
+        animation: float 4s ease-in-out infinite; /* Animasi naik-turun */
+      }
+      /* Menambahkan pembatas agar elemen tidak memengaruhi lebar halaman */
+      .moving-element1,
+      .moving-element2,
+      .moving-element3,
+      .moving-element4 {
+        max-width: 100vw; /* Batasi lebar elemen agar tidak memengaruhi halaman */
+        overflow: hidden;
+      }
+      .element1 {
+        top: 10%;
+        left: 10%;
+      }
+
+      .element2 {
+        top: 50%;
+        right: 15%;
+        filter: blur(2px);
+      }
+
+      .element3 {
+        top: 20%;
+        right: 10%;
+      }
+
+      .element4 {
+        top: 58%;
+        left: 3%;
+        filter: blur(4px);
+      }
+
+      /* Animasi naik-turun */
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px); /* Bergerak sedikit ke atas */
+        }
+        100% {
+          transform: translateY(0px); /* Kembali ke posisi semula */
+        }
+      }
+
+      /* Media Queries untuk perangkat HP */
+      @media screen and (max-width: 768px) {
+        body {
+          background-image: url("images/bg-hp.png");
+        }
+
+        .container {
+          padding: 10px;
+        }
+        .container .role {
+          margin-top: 100px;
+        }
+        .role-button {
+          font-size: 14px;
+          padding: 8px 20px;
+        }
+
+        h2 {
+          font-size: 18px;
+        }
+
+        .moving-element1,
+        .moving-element2,
+        .moving-element3,
+        .moving-element4 {
+          width: 0px;
+        }
+
+        .element1 {
+          top: 0%;
+          left: -25%;
+          filter: blur(1px);
+        }
+
+        .element2 {
+          top: 65%;
+          right: 0%;
+          filter: blur(1px);
+        }
+
+        .element3 {
+          top: 0%;
+          right: 0%;
+          filter: blur(4px);
+        }
+
+        .element4 {
+          top: 65%;
+          left: -25%;
+          filter: blur(4px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="role">
+        <h2>Pilih Peran Anda</h2>
+        <button class="role-button" onclick="pilihPeran('Siswa')">
+          <strong>Siswa</strong>
+        </button>
+        <button class="role-button" onclick="pilihPeran('Admin')">
+          <strong>Guru</strong>
+        </button>
+        <p id="hasil"></p>
+      </div>
+    </div>
+
+    <!-- Elemen PNG yang bergerak -->
+    <img
+      src="images/buku.png"
+      class="moving-element1 element1"
+      alt="Element 1"
+    />
+    <img
+      src="images/buku.png"
+      class="moving-element2 element2"
+      alt="Element 2"
+    />
+    <img
+      src="images/buku.png"
+      class="moving-element3 element3"
+      alt="Element 3"
+    />
+    <img
+      src="images/buku.png"
+      class="moving-element4 element4"
+      alt="Element 4"
+    />
+
+    <!-- Menambahkan elemen audio -->
+    <audio id="audio" src="sound/opening.mp3" preload="auto"></audio>
+
+    <script>
+      // Fungsi untuk memutar suara saat halaman dimuat
+      window.onload = function () {
+        var audio = document.getElementById("audio");
+        audio.play();
+        audio.loop = false; // Ensure it doesn't loop
+      };
+
+      function pilihPeran(peran) {
+        if (peran === "Siswa") {
+          window.location.href = "pantun.html"; // Mengarahkan ke halaman pantun.html
+        } else if (peran === "Admin") {
+          window.location.href = "loginadmin.html"; // Mengarahkan ke halaman admin.html (atau halaman admin yang Anda tentukan)
+        }
+      }
+    </script>
+  </body>
+</html>

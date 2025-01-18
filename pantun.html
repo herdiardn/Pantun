@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Cek Pantun</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+
+      header {
+        background-color: #333;
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      section {
+        padding: 20px;
+        background-color: white;
+        margin: 20px;
+        border-radius: 5px;
+      }
+
+      textarea {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #555;
+      }
+
+      .back-btn {
+        margin: 0px 0px 20px 40px;
+        padding: 10px 30px;
+      }
+
+      #hasil,
+      #hasil-lengkap {
+        margin-top: 15px;
+        font-weight: bold;
+      }
+
+      footer {
+        text-align: center;
+        padding: 5px;
+        background-color: #333;
+        color: white;
+      }
+
+      /* Media Queries */
+      @media screen and (max-width: 768px) {
+        section {
+          margin: 10px;
+          padding: 15px;
+        }
+
+        textarea {
+          font-size: 14px;
+          padding: 8px;
+        }
+        .back-btn {
+          margin: 0px 0px 20px 20px;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        header {
+          padding: 15px;
+          font-size: 14px;
+        }
+
+        section {
+          margin: 10px;
+          padding: 10px;
+        }
+
+        textarea {
+          font-size: 14px;
+          padding: 6px;
+        }
+        .back-btn {
+          margin: 0px 0px 20px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Periksa Pantun Anda</h1>
+    </header>
+    <section>
+      <h2>Masukkan Pantun Anda:</h2>
+      <textarea
+        id="pantun-input"
+        rows="5"
+        placeholder="Masukkan pantun di sini..."
+      ></textarea>
+      <br />
+      <button onclick="cekPantun()">Cek Pantun</button>
+      <p id="hasil"></p>
+    </section>
+
+    <section>
+      <h2>Lengkapi Pantun Berikut:</h2>
+      <textarea id="baris1" rows="1" placeholder="Isi baris 1..."></textarea>
+      <textarea id="baris2" rows="1" placeholder="Isi baris 2..."></textarea>
+      <p id="baris3"></p>
+      <p id="baris4"></p>
+      <br />
+      <button onclick="cekPantunLengkap()">Cek Pantun</button>
+      <p id="hasil-lengkap"></p>
+    </section>
+
+    <button class="back-btn" onclick="window.location.href='index.html'">
+      Kembali
+    </button>
+
+    <footer>
+      <p>&copy; 2024 Cek Pantun. All rights reserved.</p>
+    </footer>
+
+    <!-- Elemen audio -->
+    <audio id="soundBenar" src="sound/newBenar.mp3"></audio>
+    <audio id="soundSalah" src="sound/newSalah.mp3"></audio>
+
+    <script type="module">
+      window.cekPantun = function () {
+        const pantun = document.getElementById("pantun-input").value;
+        const hasilElement = document.getElementById("hasil");
+
+        // Pisahkan bait menjadi baris-baris
+        const baris = pantun.trim().split("\n");
+        const totalBaris = 4; // Pantun seharusnya terdiri dari 4 baris
+
+        // Pastikan baris yang kosong ditambahkan untuk pengecekan
+        while (baris.length < totalBaris) {
+          baris.push("");
+        }
+
+        // Array untuk menyimpan pesan hasil
+        let hasilPesan = [];
+        let pesanKesalahan = [];
+        let sukuKataBenar = [];
+        let sukuKataSalah = [];
+        let rimaBenar = [];
+        let rimaSalah = [];
+
+        // Pesan mengenai jumlah baris
+        if (baris.filter((b) => b.trim() !== "").length !== totalBaris) {
+          pesanKesalahan.push(
+            `<span style="color: red;">Perhatikan kembali, pantun kamu baru ${
+              baris.filter((b) => b.trim() !== "").length
+            } baris. Pantun harus terdiri dari 4 baris. Coba lagi ya!</span>`
+          );
+        } else {
+          hasilPesan.push(
+            `<span style="color: green;">Jumlah baris pantun kamu sudah benar, yaitu 4 baris!</span>`
+          );
+        }
+
+        function hitungSukuKata(baris) {
+          const sukuKataEjaan = [];
+          const kataArray = baris.split(" ");
+          let totalSukuKata = 0;
+
+          const warnaiVokal = (kata) => {
+            return kata.replace(/[aiueoAIUEO]/g, (match) => {
+              return `<span style="color: black; text-decoration: underline; text-decoration-color: black;">${match}</span>`;
+            });
+          };
+
+          kataArray.forEach((kata) => {
+            // Pecah suku kata dengan lebih ketat: satu atau lebih vokal dihitung terpisah
+            const sukuKata = kata.match(/[aiueoAIUEO]{1}/gi);
+            if (sukuKata) {
+              totalSukuKata += sukuKata.length;
+              sukuKataEjaan.push(warnaiVokal(kata));
+            } else {
+              sukuKataEjaan.push(kata);
+            }
+          });
+
+          return { total: totalSukuKata, ejaan: sukuKataEjaan.join(" ") };
+        }
+
+        function akhirKata(baris) {
+          return baris.trim().split(" ").pop().toLowerCase();
+        }
+
+        function ambilRima(kata) {
+          if (kata.endsWith("ng")) {
+            return kata.slice(-3);
+          }
+          if (/[aiueo]$/.test(kata)) {
+            return kata.slice(-1);
+          }
+          return kata.slice(-2);
+        }
+
+        function sorotRima(teks, rima) {
+          const posisiRima = teks.lastIndexOf(rima);
+          if (posisiRima !== -1) {
+            return (
+              teks.slice(0, posisiRima) +
+              `<span style="color: blue;">` +
+              teks.slice(posisiRima) +
+              `</span>`
+            );
+          }
+          return teks;
+        }
+
+        // Periksa setiap baris
+        const rima = baris.map((barisTeks) => ambilRima(akhirKata(barisTeks)));
+
+        // **Cek Suku Kata**
+        for (let i = 0; i < totalBaris; i++) {
+          const { total, ejaan } = hitungSukuKata(baris[i]);
+          if (total < 8 || total > 12) {
+            sukuKataSalah.push(
+              `<span style="color: red;">Perhatikan kembali, pantun kamu pada baris ${
+                i + 1
+              } masih salah "${
+                baris[i]
+              }" terdiri dari (${ejaan}) ${total} suku kata. Pantun harus memiliki 8-12 suku kata.</span><br>`
+            );
+          } else {
+            sukuKataBenar.push(
+              `<span style="color: green;">Pantun kamu pada baris ${
+                i + 1
+              } sudah benar "${
+                baris[i]
+              }" terdiri dari (${ejaan}) ${total} suku kata.</span><br>`
+            );
+          }
+        }
+
+        // **Cek Rima**
+        if (rima[0] !== rima[2]) {
+          rimaSalah.push(
+            `<span style="color: red;">Perhatikan kembali, rima pantun kamu pada baris 1 "${sorotRima(
+              baris[0],
+              rima[0]
+            )}" dan 3 "${sorotRima(
+              baris[2],
+              rima[2]
+            )}" belum sesuai. Coba lagi ya!</span><br>`
+          );
+        } else {
+          rimaBenar.push(
+            `<span style="color: green;">Rima pada baris 1 "${sorotRima(
+              baris[0],
+              rima[0]
+            )}" dan baris 3 "${sorotRima(
+              baris[2],
+              rima[2]
+            )}" sudah benar!</span><br>`
+          );
+        }
+
+        if (rima[1] !== rima[3]) {
+          rimaSalah.push(
+            `<span style="color: red;">Perhatikan kembali, rima pantun kamu pada baris 2 "${sorotRima(
+              baris[1],
+              rima[1]
+            )}" dan 4 "${sorotRima(
+              baris[3],
+              rima[3]
+            )}" belum sesuai. Coba lagi ya!</span><br>`
+          );
+        } else {
+          rimaBenar.push(
+            `<span style="color: green;">Rima pada baris 2 "${sorotRima(
+              baris[1],
+              rima[1]
+            )}" dan baris 4 "${sorotRima(
+              baris[3],
+              rima[3]
+            )}" sudah benar!</span><br>`
+          );
+        }
+
+        // Gabungkan pesan sesuai kategori
+        const semuaPesan = `
+    <strong>*BARIS</strong><br>
+    ${pesanKesalahan.concat(hasilPesan).join("<br>")}<br><br>
+    <strong>*SUKU KATA</strong><br>
+    ${sukuKataSalah.concat(sukuKataBenar).join("")}<br>
+    <strong>*RIMA</strong><br>
+    ${rimaSalah.concat(rimaBenar).join("")}<br>
+    <strong>Keterangan:</strong><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: green; margin-right: 5px;"></div> : <span style="color: green;">sudah sesuai</span><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: red; margin-right: 5px;"></div> : <span style="color: red;">masih terdapat kesalahan</span><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: black; margin-right: 5px;"></div> : <span style="color: black;">jumlah penggalan suku kata</span><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: blue; margin-right: 5px;"></div> : <span style="color: blue;">bunyi akhir rima</span><br>
+  `;
+
+        if (
+          pesanKesalahan.length > 0 ||
+          sukuKataSalah.length > 0 ||
+          rimaSalah.length > 0
+        ) {
+          hasilElement.innerHTML = semuaPesan;
+          soundSalah.play();
+        } else {
+          hasilElement.innerHTML = semuaPesan;
+          soundBenar.play();
+        }
+      };
+
+      // Konfigurasi Firebase
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBi6FNKhr7nkpKDpLjRTfqlGOOx2Ro1nxA",
+        authDomain: "cekpantun.firebaseapp.com",
+        databaseURL:
+          "https://cekpantun-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "cekpantun",
+        storageBucket: "http://cekpantun.firebasestorage.app",
+        messagingSenderId: "685073002102",
+        appId: "1:685073002102:web:05cc44ef3c4c595bfdf957",
+        measurementId: "G-1JHKWXLLX5",
+      };
+
+      // Inisialisasi Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      // Ambil data dari Firebase saat halaman dimuat
+      onValue(ref(database, "pantun"), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          document.getElementById("baris3").innerText = data.baris3 || "";
+          document.getElementById("baris4").innerText = data.baris4 || "";
+        }
+      });
+
+      window.cekPantunLengkap = function () {
+        const baris1 = document.getElementById("baris1").value.trim();
+        const baris2 = document.getElementById("baris2").value.trim();
+        const baris3 = document.getElementById("baris3").innerText.trim();
+        const baris4 = document.getElementById("baris4").innerText.trim();
+        const hasilLengkapElement = document.getElementById("hasil-lengkap");
+
+        // Gabungkan semua baris menjadi satu array
+        const baris = [baris1, baris2, baris3, baris4];
+        const totalBaris = 4; // Pantun seharusnya terdiri dari 4 baris
+
+        // Pastikan baris yang kosong ditambahkan untuk pengecekan
+        while (baris.length < totalBaris) {
+          baris.push("");
+        }
+
+        // Array untuk menyimpan pesan hasil
+        let hasilPesan = [];
+        let pesanKesalahan = [];
+        let sukuKataBenar = [];
+        let sukuKataSalah = [];
+        let rimaBenar = [];
+        let rimaSalah = [];
+
+        // Pesan mengenai jumlah baris
+        if (baris.filter((b) => b.trim() !== "").length !== totalBaris) {
+          pesanKesalahan.push(
+            `<span style="color: red;">Perhatikan kembali, pantun kamu baru ${
+              baris.filter((b) => b.trim() !== "").length
+            } baris. Pantun harus terdiri dari 4 baris. Coba lagi ya!</span>`
+          );
+        } else {
+          hasilPesan.push(
+            `<span style="color: green;">Jumlah baris pantun kamu sudah benar, yaitu 4 baris!</span>`
+          );
+        }
+        // Cek jika ada kalimat yang sama
+        if (
+          baris1 === baris3 ||
+          baris1 === baris4 ||
+          baris2 === baris3 ||
+          baris2 === baris4
+        ) {
+          hasilLengkapElement.innerHTML = `<span style="color: red;">Perhatikan kembali, kamu menulis kalimat yang sama dengan isi pantun. Coba lagi buat sampiran yang menarik ya!</span>`;
+          soundSalah.play(); // Mainkan suara kesalahan
+          return;
+        }
+        function hitungSukuKata(baris) {
+          const sukuKataEjaan = [];
+          const kataArray = baris.split(" ");
+          let totalSukuKata = 0;
+
+          const warnaiVokal = (kata) => {
+            return kata.replace(/[aiueoAIUEO]/g, (match) => {
+              return `<span style="color: black; text-decoration: underline; text-decoration-color: black;">${match}</span>`;
+            });
+          };
+
+          kataArray.forEach((kata) => {
+            // Pecah suku kata dengan lebih ketat: satu atau lebih vokal dihitung terpisah
+            const sukuKata = kata.match(/[aiueoAIUEO]{1}/gi);
+            if (sukuKata) {
+              totalSukuKata += sukuKata.length;
+              sukuKataEjaan.push(warnaiVokal(kata));
+            } else {
+              sukuKataEjaan.push(kata);
+            }
+          });
+
+          return { total: totalSukuKata, ejaan: sukuKataEjaan.join(" ") };
+        }
+
+        function akhirKata(baris) {
+          return baris.trim().split(" ").pop().toLowerCase();
+        }
+
+        function ambilRima(kata) {
+          if (kata.endsWith("ng")) {
+            return kata.slice(-3);
+          }
+          if (/[aiueo]$/.test(kata)) {
+            return kata.slice(-1);
+          }
+          return kata.slice(-2);
+        }
+
+        function sorotRima(teks, rima) {
+          const posisiRima = teks.lastIndexOf(rima);
+          if (posisiRima !== -1) {
+            return (
+              teks.slice(0, posisiRima) +
+              `<span style="color: blue;">` +
+              teks.slice(posisiRima) +
+              `</span>`
+            );
+          }
+          return teks;
+        }
+
+        // Periksa setiap baris
+        const rima = baris.map((barisTeks) => ambilRima(akhirKata(barisTeks)));
+
+        // **Cek Suku Kata**
+        for (let i = 0; i < totalBaris; i++) {
+          const { total, ejaan } = hitungSukuKata(baris[i]);
+          if (total < 8 || total > 12) {
+            sukuKataSalah.push(
+              `<span style="color: red;">Perhatikan kembali, pantun kamu pada baris ${
+                i + 1
+              } masih salah "${
+                baris[i]
+              }" terdiri dari (${ejaan}) ${total} suku kata. Pantun harus memiliki 8-12 suku kata.</span><br>`
+            );
+          } else {
+            sukuKataBenar.push(
+              `<span style="color: green;">Pantun kamu pada baris ${
+                i + 1
+              } sudah benar "${
+                baris[i]
+              }" terdiri dari (${ejaan}) ${total} suku kata.</span><br>`
+            );
+          }
+        }
+
+        // **Cek Rima**
+        if (rima[0] !== rima[2]) {
+          rimaSalah.push(
+            `<span style="color: red;">Perhatikan kembali, rima pantun kamu pada baris 1 "${sorotRima(
+              baris[0],
+              rima[0]
+            )}" dan 3 "${sorotRima(
+              baris[2],
+              rima[2]
+            )}" belum sesuai. Coba lagi ya!</span><br>`
+          );
+        } else {
+          rimaBenar.push(
+            `<span style="color: green;">Rima pada baris 1 "${sorotRima(
+              baris[0],
+              rima[0]
+            )}" dan baris 3 "${sorotRima(
+              baris[2],
+              rima[2]
+            )}" sudah benar!</span><br>`
+          );
+        }
+
+        if (rima[1] !== rima[3]) {
+          rimaSalah.push(
+            `<span style="color: red;">Perhatikan kembali, rima pantun kamu pada baris 2 "${sorotRima(
+              baris[1],
+              rima[1]
+            )}" dan 4 "${sorotRima(
+              baris[3],
+              rima[3]
+            )}" belum sesuai. Coba lagi ya!</span><br>`
+          );
+        } else {
+          rimaBenar.push(
+            `<span style="color: green;">Rima pada baris 2 "${sorotRima(
+              baris[1],
+              rima[1]
+            )}" dan baris 4 "${sorotRima(
+              baris[3],
+              rima[3]
+            )}" sudah benar!</span><br>`
+          );
+        }
+
+        // Gabungkan pesan sesuai kategori
+        const semuaPesan = `
+    <strong>*BARIS</strong><br>
+    ${pesanKesalahan.concat(hasilPesan).join("<br>")}<br><br>
+    <strong>*SUKU KATA</strong><br>
+    ${sukuKataSalah.concat(sukuKataBenar).join("")}<br>
+    <strong>*RIMA</strong><br>
+    ${rimaSalah.concat(rimaBenar).join("")}<br>
+    <strong>Keterangan:</strong><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: green; margin-right: 5px;"></div> : <span style="color: green;">sudah sesuai</span><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: red; margin-right: 5px;"></div> : <span style="color: red;">masih terdapat kesalahan</span><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: black; margin-right: 5px;"></div> : <span style="color: black;">jumlah penggalan suku kata</span><br>
+    <div style="display: inline-block; width: 10px; height: 10px; background-color: blue; margin-right: 5px;"></div> : <span style="color: blue;">bunyi akhir rima</span><br>
+  `;
+
+        // Pastikan soundSalah dan soundBenar sudah didefinisikan sebelumnya
+        if (
+          pesanKesalahan.length > 0 ||
+          sukuKataSalah.length > 0 ||
+          rimaSalah.length > 0
+        ) {
+          hasilLengkapElement.innerHTML = semuaPesan;
+          soundSalah.play(); // Pastikan soundSalah didefinisikan
+        } else {
+          hasilLengkapElement.innerHTML = semuaPesan;
+          soundBenar.play(); // Pastikan soundBenar didefinisikan
+        }
+      };
+    </script>
+  </body>
+</html>
