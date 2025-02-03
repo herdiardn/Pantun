@@ -76,7 +76,7 @@
     </header>
 
     <section>
-      <h2>Masukkan Pantun Baris 3 dan 4:</h2>
+      <h2>Masukkan Pantun baris 3 & 4:</h2>
       <textarea
         id="baris3"
         rows="2"
@@ -84,6 +84,38 @@
       ></textarea>
       <textarea
         id="baris4"
+        rows="2"
+        placeholder="Masukkan baris 4..."
+      ></textarea>
+
+      <h2>Masukkan Pantun baris 1 & 3:</h2>
+      <textarea
+        id="barissatu"
+        rows="2"
+        placeholder="Masukkan baris 1..."
+      ></textarea>
+      <textarea
+        id="baristiga"
+        rows="2"
+        placeholder="Masukkan baris 3..."
+      ></textarea>
+
+      <h2>Masukkan Pantun baris 1 & 2:</h2>
+      <textarea
+        id="bariske1"
+        rows="2"
+        placeholder="Masukkan baris 1..."
+      ></textarea>
+      <textarea
+        id="bariske2"
+        rows="2"
+        placeholder="Masukkan baris 2..."
+      ></textarea>
+
+      <h2>Masukkan Pantun baris 2 & 4:</h2>
+      <textarea id="dua" rows="2" placeholder="Masukkan baris 2..."></textarea>
+      <textarea
+        id="empat"
         rows="2"
         placeholder="Masukkan baris 4..."
       ></textarea>
@@ -129,12 +161,30 @@
       window.simpanPantun = function () {
         const baris3 = document.getElementById("baris3").value;
         const baris4 = document.getElementById("baris4").value;
+        const barissatu = document.getElementById("barissatu").value;
+        const baristiga = document.getElementById("baristiga").value;
+        const bariske1 = document.getElementById("bariske1").value;
+        const bariske2 = document.getElementById("bariske2").value;
+        const dua = document.getElementById("dua").value;
+        const empat = document.getElementById("empat").value;
         console.log("Baris 3:", baris3);
         console.log("Baris 4:", baris4);
+        console.log("Baris 1:", barissatu);
+        console.log("Baris 3:", baristiga);
+        console.log("Baris 1:", bariske1);
+        console.log("Baris 2:", bariske2);
+        console.log("Baris 2:", dua);
+        console.log("Baris 4:", empat);
 
         set(ref(database, "pantun"), {
           baris3: baris3,
           baris4: baris4,
+          barissatu: barissatu,
+          baristiga: baristiga,
+          bariske1: bariske1,
+          bariske2: bariske2,
+          dua: dua,
+          empat: empat,
         })
           .then(() => {
             alert("Pantun berhasil disimpan!");
@@ -150,6 +200,12 @@
         if (data) {
           document.getElementById("baris3").value = data.baris3 || "";
           document.getElementById("baris4").value = data.baris4 || "";
+          document.getElementById("barissatu").value = data.barissatu || "";
+          document.getElementById("baristiga").value = data.baristiga || "";
+          document.getElementById("bariske1").value = data.bariske1 || "";
+          document.getElementById("bariske2").value = data.bariske2 || "";
+          document.getElementById("dua").value = data.dua || "";
+          document.getElementById("empat").value = data.empat || "";
         }
       });
     </script>
